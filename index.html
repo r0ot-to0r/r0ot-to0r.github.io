@@ -359,6 +359,51 @@ height:50vh;
     
     
     <article class="index-post">
+        <a class="abstract-title" href = "/r0ot-to0r.github.io/2019/09/24/pwnable-Col/" >
+            
+                <span>pwnable-Col</span>
+        </a>
+        <div class="abstract-content">
+            还是一样打开网站，链接服务器（此部分省略）
+
+查看服务器里有什么？
+查看源代码
+涉及到的知识点:
+1.指针类型转换2.大小端序3.字符串转换ASCII码
+
+知识点1：指针类型转换
+当我们初始化一个指针或给一个指针赋值时，赋值号的左边是一个指针，赋值号的右边是一个指针表达式。在我们前面所举的例子中，绝大多数情况下，指针的类型和指针表达式的类型是一样的，指针所指向的类型和指针表达式所指向的类型是一样的。
+
+123float f=12.3;  float *fptr=&amp;f;  int *p;
+
+
+在上面的例子中，假如我们想让指针p 指向实数f，应该怎么办？
+
+
+是用下面的语句吗？p=&...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/24</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Pwn">Pwn</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href = "/r0ot-to0r.github.io/2019/09/16/个人年度总结及AWD线下赛复盘/" >
             
                 <span>个人年度总结及AWD线下赛复盘</span>
@@ -406,6 +451,12 @@ height:50vh;
                 <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/16</span>
             </div>
             <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Pwn">Pwn</a>
+    
+</div>
             
         </div>
     </article>
@@ -622,9 +673,18 @@ height:50vh;
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 2
+        Total : 3
         </div>
         <!-- search  -->
         
@@ -640,6 +700,11 @@ height:50vh;
     
     
         <li class="archive-post-item">
+            <span class="archive-post-date">09/24</span><a class="archive-post-title" href= "/r0ot-to0r.github.io/2019/09/24/pwnable-Col/" >pwnable-Col</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
             <span class="archive-post-date">09/16</span><a class="archive-post-title" href= "/r0ot-to0r.github.io/2019/09/16/个人年度总结及AWD线下赛复盘/" >个人年度总结及AWD线下赛复盘</a>
         </li>
     
@@ -652,6 +717,8 @@ height:50vh;
   </div>
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="Pwn"><span class="iconfont-archer">&#xe606;</span>Pwn</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

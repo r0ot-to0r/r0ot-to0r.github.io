@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="Johnny">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Johnny">
+    
+    <meta name="keywords" content="pwn学习,web安全,awd线下赛">
+    
+    <meta name="description" content>
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>pwnable-Col · Johnny&#39;s Blog</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/r0ot-to0r.github.io/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/r0ot-to0r.github.io/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/r0ot-to0r.github.io/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/r0ot-to0r.github.io/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/r0ot-to0r.github.io/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/r0ot-to0r.github.io/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/r0ot-to0r.github.io/" >Johnny&#39;s Blog</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">pwnable-Col</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/r0ot-to0r.github.io/>Johnny's Blog</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/r0ot-to0r.github.io/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            pwnable-Col
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Pwn">Pwn</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">1.9k</span>Reading time: <span class="post-count reading-time">7 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/09/24</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/r0ot-to0r.github.io/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/r0ot-to0r.github.io/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <p><strong>还是一样打开网站，链接服务器（此部分省略）</strong></p>
+<p><img src="step0.png" alt></p>
+<h2 id="查看服务器里有什么？"><a href="#查看服务器里有什么？" class="headerlink" title="查看服务器里有什么？"></a>查看服务器里有什么？</h2><p><img src="ls.jpg" alt></p>
+<h2 id="查看源代码"><a href="#查看源代码" class="headerlink" title="查看源代码"></a>查看源代码</h2><p><img src="code.png" alt></p>
+<h2 id="涉及到的知识点"><a href="#涉及到的知识点" class="headerlink" title="涉及到的知识点:"></a>涉及到的知识点:</h2><blockquote>
+<p>1.指针类型转换<br>2.大小端序<br>3.字符串转换ASCII码</p>
+</blockquote>
+<h3 id="知识点1：指针类型转换"><a href="#知识点1：指针类型转换" class="headerlink" title="知识点1：指针类型转换"></a>知识点1：指针类型转换</h3><blockquote>
+<p>当我们初始化一个指针或给一个指针赋值时，赋值号的左边是一个指针，赋值号的右边是一个指针表达式。在我们前面所举的例子中，绝大多数情况下，指针的类型和指针表达式的类型是一样的，指针所指向的类型和指针表达式所指向的类型是一样的。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> f=<span class="number">12.3</span>;  </span><br><span class="line"><span class="keyword">float</span> *fptr=&amp;f;  </span><br><span class="line"><span class="keyword">int</span> *p;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在上面的例子中，假如我们想让指针p 指向实数f，应该怎么办？</p>
+</blockquote>
+<blockquote>
+<p>是用下面的语句吗？<br>p=&f;</p>
+</blockquote>
+<blockquote>
+<p>不对。因为指针p 的类型是int *，它指向的类型是int。表达式&amp;f 的结果是一个指针，指针的类型是float *,它指向的类型是float。</p>
+</blockquote>
+<blockquote>
+<p>两者不一致，直接赋值的方法是不行的。至少在我的MSVC++6.0 上，对指针的赋值语句要求赋值号两边的类型一致，所指向的类型也一致，其它的编译器上我没试过，大家可以试试。为了实现我们的目的，需要进行”强制类型转换”：<br>p=(int*)&f;</p>
+</blockquote>
+<blockquote>
+<p>如果有一个指针p，我们需要把它的类型和所指向的类型改为TYEP *TYPE， 那么语法格式是： (TYPE *)p；<br>这样强制类型转换的结果是一个新指针，该新指针的类型是TYPE *，它指向的类型是TYPE，它指向的地址就是原指针指向的地址。<br>而原来的指针p 的一切属性都没有被修改。（切记）<br>一个函数如果使用了指针1作为形参，那么在函数调用语句的实参和形参的结合过程中，必须保证类型一致，否则需要强制转换!</p>
+</blockquote>
+<p><em>再来看一段代码：</em></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fun</span><span class="params">(<span class="keyword">char</span>*)</span></span>;  </span><br><span class="line">    <span class="keyword">int</span> a=<span class="number">125</span>,b;  </span><br><span class="line">    fun((<span class="keyword">char</span>*)&amp;a);  </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">fun</span><span class="params">(<span class="keyword">char</span>*s)</span>  </span></span><br><span class="line"><span class="function">    </span>&#123;  </span><br><span class="line">        charc;  </span><br><span class="line">        c=*(s+<span class="number">3</span>);*(s+<span class="number">3</span>)=*(s+<span class="number">0</span>);*(s+<span class="number">0</span>)=c;  </span><br><span class="line">        c=*(s+<span class="number">2</span>);*(s+<span class="number">2</span>)=*(s+<span class="number">1</span>);*(s+<span class="number">1</span>)=c;  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意这是一个32 位程序，故int 类型占了四个字节，char 类型占一个字节。函数fun 的作用是把一个整数的四个字节的顺序来个颠倒。注意到了吗？在函数调用语句中，实参&amp;a 的结果是一个指针，它的类型是int *，它指向的类型是int。形参这个指针的类型是char *，它指向的类型是char。这样，在实参和形参的结合过程中，我们必须进行一次从int *类型到char *类型的转换。</p>
+</blockquote>
+<p><em>结合这个例子，我们可以这样想:</em></p>
+<blockquote>
+<p>想象编译器进行转换的过程：编译器先构造一个临时指针char *temp，然后执行temp=(char *)&amp;a，最后再把temp 的值传递给s。所以最后的结果是：s 的类型是char *,它指向的类型是char，它指向的地址就是a 的首地址。<br>我们已经知道，指针的值就是指针指向的地址，在32 位程序中，指针的值其实是一个32 位整数。</p>
+</blockquote>
+<h3 id="知识点2：大小端序"><a href="#知识点2：大小端序" class="headerlink" title="知识点2：大小端序"></a>知识点2：大小端序</h3><blockquote>
+<p>我一直不理解，为什么要有字节序，每次读写都要区分，多麻烦！统一使用大端字节序，不是更方便吗？</p>
+</blockquote>
+<ul>
+<li>上周，我读到了一篇文章，解答了所有的疑问。而且，我发现原来的理解是错的，字节序其实很简单。</li>
+</ul>
+<p><strong>首先，为什么会有小端字节序？</strong></p>
+<blockquote>
+<p>答案是，计算机电路先处理低位字节，效率比较高，因为计算都是从低位开始的。所以，计算机的内部处理都是小端字节序。<br>但是，人类还是习惯读写大端字节序。所以，除了计算机的内部处理，其他的场合几乎都是大端字节序，比如网络传输和文件储存。</p>
+</blockquote>
+<blockquote>
+<p>计算机处理字节序的时候，不知道什么是高位字节，什么是低位字节。它只知道按顺序读取字节，先读第一个字节，再读第二个字节。<br>如果是大端字节序，先读到的就是高位字节，后读到的就是低位字节。小端字节序正好相反。<br>理解这一点，才能理解计算机如何处理字节序。</p>
+</blockquote>
+<p><strong>字节序的处理，就是一句话：</strong></p>
+<p>*”只有读取的时候，才必须区分字节序，其他情况都不用考虑。”*</p>
+<blockquote>
+<p>处理器读取外部数据的时候，必须知道数据的字节序，将其转成正确的值。然后，就正常使用这个值，完全不用再考虑字节序。<br>即使是向外部设备写入数据，也不用考虑字节序，正常写入一个值即可。外部设备会自己处理字节序的问题。</p>
+</blockquote>
+<p><em>举一个例子，比如数字0x12 34 56 78在内存中的表示形式为：</em></p>
+<blockquote>
+<p>1)大端模式：<br>低地址 —————–&gt; 高地址<br>0x12  |  0x34  |  0x56  |  0x78</p>
+</blockquote>
+<blockquote>
+<p>2)小端模式：<br>低地址 ——————&gt; 高地址<br>0x78  |  0x56  |  0x34  |  0x12</p>
+</blockquote>
+<p><em>可见，大端模式和字符串的存储模式类似。</em></p>
+<h3 id="知识点3：字符串转换ASCII码"><a href="#知识点3：字符串转换ASCII码" class="headerlink" title="知识点3：字符串转换ASCII码"></a>知识点3：字符串转换ASCII码</h3><blockquote>
+<p>我们输入进的是字符串，内存里存放的是以ASCII码值来储存的</p>
+</blockquote>
+<h2 id="开始做题："><a href="#开始做题：" class="headerlink" title="开始做题："></a>开始做题：</h2><h3 id="回顾代码："><a href="#回顾代码：" class="headerlink" title="回顾代码："></a>回顾代码：</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> hashcode = <span class="number">0x21DD09EC</span>;</span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">check_password</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* p)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span>* ip = (<span class="keyword">int</span>*)p;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">int</span> res=<span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;<span class="number">5</span>; i++)&#123;</span><br><span class="line">		res += ip[i];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(argc&lt;<span class="number">2</span>)&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"usage : %s [passcode]\n"</span>, argv[<span class="number">0</span>]);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(<span class="built_in">strlen</span>(argv[<span class="number">1</span>]) != <span class="number">20</span>)&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"passcode length should be 20 bytes\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(hashcode == check_password( argv[<span class="number">1</span>] ))&#123;</span><br><span class="line">		system(<span class="string">"/bin/cat flag"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"wrong passcode.\n"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="源代码简要说明："><a href="#源代码简要说明：" class="headerlink" title="源代码简要说明："></a>源代码简要说明：</h3><blockquote>
+<p>check_password函数的大致意思是定义一个不可变的char类型指针p（形参），将char类型的p指针强制转换成int类型指针，让int类型的ip指针指向转换后的int类型p指针，然后定义一个int类型i变量，初始化int类型res变量值为0，for循环遍历res=res+ip[i]5次，返回res的值</p>
+</blockquote>
+<blockquote>
+<p>main函数的大致意思是让你输入一串check_password()函数里返回的字符串，如果与之前定义的hashcode相等，呢么输出flag</p>
+</blockquote>
+<h3 id="解决思路："><a href="#解决思路：" class="headerlink" title="解决思路："></a>解决思路：</h3><ul>
+<li>所以你现在知道你要输入什么进去了，但是你不能直接输入字符串进去，得把要输入的字符串对应的ASCII码值输入进去,为什么？看之前的知识点！</li>
+</ul>
+<p><strong>0x21DD09EC是我们要输入的答案</strong></p>
+<ul>
+<li>呢么哪五个数相加等于0x21DD09EC呢，我们来做个计算：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">0x21DD09EC-4 //这里减4是为了凑整，减其他的也行，就是必须是整数</span><br><span class="line">得到：0x21DD09E8</span><br><span class="line">0x21DD09E8除以5 //因为这里循环5组</span><br><span class="line">‭得到：0x06C5CEC8‬</span><br><span class="line">0x06C5CEC8‬ *4加上0x06C5CEC8+4</span><br><span class="line">得0x21DD09EC</span><br></pre></td></tr></table></figure>
+
+<h3 id="开始构造payload："><a href="#开始构造payload：" class="headerlink" title="开始构造payload："></a>开始构造payload：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">执行代码 ：</span><br><span class="line">./col $(python -c &quot;print &apos;\xC8\xCE\xC5\x06&apos; * 4 + &apos;\xCC\xCE\xC5\x06&apos;&quot;)</span><br></pre></td></tr></table></figure>
+
+<p><em>注意：必须是小端格式</em><br>‘\xC8\xCE\xC5\x06’ * 4 加上  \xCC\xCE\xC5\x06 刚好是 0x21DD09EC，所以利用成功。</p>
+<h2 id="成功！"><a href="#成功！" class="headerlink" title="成功！"></a>成功！</h2><p><img src="success.png" alt></p>
+<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><p><a href="https://blog.csdn.net/u012763794/article/details/51992512" target="_blank" rel="noopener">C语言指针详解(经典,非常详细)</a><br><a href="https://blog.csdn.net/ce123_zhouwei/article/details/6971544" target="_blank" rel="noopener">详解大端模式和小端模式)</a><br><a href="https://www.bilibili.com/video/av46554955" target="_blank" rel="noopener">PWN-Col教学</a></p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>Author：<a href="https://r0ot-to0r.github.io">Johnny</a>
+            <p>原文链接：<a href="https://r0ot-to0r.github.io/2019/09/24/pwnable-Col/">https://r0ot-to0r.github.io/2019/09/24/pwnable-Col/</a>
+            <p>发表日期：<a href="https://r0ot-to0r.github.io/2019/09/24/pwnable-Col/">September 24th 2019, 5:56:30 pm</a>
+            <p>更新日期：<a href="https://r0ot-to0r.github.io/2019/09/24/pwnable-Col/">September 25th 2019, 10:21:57 pm</a>
+            <p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/r0ot-to0r.github.io/2019/09/16/个人年度总结及AWD线下赛复盘/" title= "个人年度总结及AWD线下赛复盘">
+                    <div class="prevTitle">个人年度总结及AWD线下赛复盘</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:645926235@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/r0ot-to0r" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/r0ot-to0r.github.io/assets/wechat-code.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#查看服务器里有什么？"><span class="toc-number">1.</span> <span class="toc-text">查看服务器里有什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查看源代码"><span class="toc-number">2.</span> <span class="toc-text">查看源代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#涉及到的知识点"><span class="toc-number">3.</span> <span class="toc-text">涉及到的知识点:</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#知识点1：指针类型转换"><span class="toc-number">3.1.</span> <span class="toc-text">知识点1：指针类型转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#知识点2：大小端序"><span class="toc-number">3.2.</span> <span class="toc-text">知识点2：大小端序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#知识点3：字符串转换ASCII码"><span class="toc-number">3.3.</span> <span class="toc-text">知识点3：字符串转换ASCII码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开始做题："><span class="toc-number">4.</span> <span class="toc-text">开始做题：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#回顾代码："><span class="toc-number">4.1.</span> <span class="toc-text">回顾代码：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源代码简要说明："><span class="toc-number">4.2.</span> <span class="toc-text">源代码简要说明：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决思路："><span class="toc-number">4.3.</span> <span class="toc-text">解决思路：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开始构造payload："><span class="toc-number">4.4.</span> <span class="toc-text">开始构造payload：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#成功！"><span class="toc-number">5.</span> <span class="toc-text">成功！</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.1.</span> <span class="toc-text">参考链接</span></a></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 3
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/24</span><a class="archive-post-title" href= "/r0ot-to0r.github.io/2019/09/24/pwnable-Col/" >pwnable-Col</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/16</span><a class="archive-post-title" href= "/r0ot-to0r.github.io/2019/09/16/个人年度总结及AWD线下赛复盘/" >个人年度总结及AWD线下赛复盘</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/16</span><a class="archive-post-title" href= "/r0ot-to0r.github.io/2019/09/16/pwnable-fd/" >pwnable-fd</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="Pwn"><span class="iconfont-archer">&#xe606;</span>Pwn</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/r0ot-to0r.github.io/",
+        author: "Johnny"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/r0ot-to0r.github.io/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/r0ot-to0r.github.io/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/r0ot-to0r.github.io/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
